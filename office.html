@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Office Management - Advocate Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* UPDATED NAV TAB STYLES - BIGGER & BETTER HOVER */
+        .nav-tab {
+            @apply px-8 py-4 text-lg font-extrabold text-slate-500 hover:text-indigo-800 hover:bg-indigo-100 border-b-4 border-transparent hover:border-indigo-600 transition-all duration-200 cursor-pointer hover:scale-105 transform origin-center flex-shrink-0 rounded-t-xl hover:shadow-lg;
+        }
+
+        .nav-tab.active {
+            @apply text-indigo-700 border-indigo-600 bg-indigo-50 shadow-sm scale-100;
+        }
+
+        /* Red Blink Animation for Loans */
+        @keyframes pulse-red {
+
+            0%,
+            100% {
+                border-color: #ef4444;
+                background-color: #fef2f2;
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            50% {
+                border-color: #b91c1c;
+                background-color: #fee2e2;
+                box-shadow: 0 0 10px 0 rgba(239, 68, 68, 0.4);
+            }
+        }
+
+        .blink-alert {
+            animation: pulse-red 2s infinite;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+        .section-content {
+            display: none;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            .print-show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen text-slate-800">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col xl:flex-row justify-between items-center py-3 gap-4">
+                <div class="flex items-center gap-3 self-start xl:self-center">
+                    <a href="index.html"
+                        class="text-slate-400 hover:text-slate-700 transition p-2 rounded-full hover:bg-slate-100"><i
+                            class="fa-solid fa-arrow-left text-xl"></i></a>
+                    <h1 class="font-extrabold text-2xl text-indigo-900 tracking-tight">Office Manager</h1>
+                </div>
+                <div class="flex space-x-2 overflow-x-auto w-full xl:w-auto pb-1 custom-scrollbar">
+                    <button class="nav-tab active" data-target="dashboard"><i
+                            class="fa-solid fa-chart-pie mr-2"></i>Dashboard</button>
+                    <button class="nav-tab" data-target="expenses"><i
+                            class="fa-solid fa-receipt mr-2"></i>Expenses</button>
+                    <button class="nav-tab" data-target="staff"><i class="fa-solid fa-users mr-2"></i>Staff &
+                        Salary</button>
+                    <button class="nav-tab" data-target="loans"><i
+                            class="fa-solid fa-hand-holding-dollar mr-2"></i>Loans/EMI</button>
+                    <button class="nav-tab" data-target="reports"><i
+                            class="fa-solid fa-file-lines mr-2"></i>Reports</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="section-content active">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Expense (This Month)</p>
+                    <h3 class="text-4xl font-extrabold text-red-600 mt-3">₹<span id="dash-expense">0</span></h3>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Income (This Month)</p>
+                    <h3 class="text-4xl font-extrabold text-green-600 mt-3">₹<span id="dash-income">0</span></h3>
+                    <p class="text-xs text-slate-400 mt-2 font-medium">From Case Fees</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">This Month Posting</p>
+                    <h3 class="text-4xl font-extrabold text-indigo-600 mt-3" id="dash-posting-count">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPENSES -->
+        <div id="expenses" class="section-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Add Expense -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 sticky top-24">
+                        <h3 class="font-bold text-xl text-slate-800 mb-6 flex items-center gap-3">
+                            <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600"><i
+                                    class="fa-solid fa-receipt"></i></div> Add Expense
+                        </h3>
+                        <form id="expense-form" class="space-y-4">
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Date</label>
+                                <input type="date" id="exp-date" required
+                                    class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Amount</label>
+                                <input type="number" id="exp-amount" placeholder="₹ Amount" required
+                                    class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition font-bold text-slate-700">
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Category</label>
+                                <div class="flex gap-2">
+                                    <div class="relative flex-grow">
+                                        <input type="text" id="exp-category" list="exp-categories"
+                                            placeholder="Select or Type..." required
+                                            class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                                        <datalist id="exp-categories">
+                                            <!-- Dynamic categories will be loaded here -->
+                                        </datalist>
+                                    </div>
+                                    <button type="button" id="btn-add-cat"
+                                        class="bg-indigo-50 text-indigo-600 px-4 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition shadow-sm"
+                                        title="Add New Category">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Link Case
+                                    (Optional)</label>
+                                <div class="relative">
+                                    <input type="text" id="exp-case" list="exp-cases-list"
+                                        placeholder="Search Case No..."
+                                        class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                                    <datalist id="exp-cases-list">
+                                        <!-- Cases will be loaded here -->
+                                    </datalist>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-bold text-slate-500 uppercase ml-1">Description</label>
+                                <input type="text" id="exp-remarks" placeholder="Remarks..."
+                                    class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-slate-900 hover:bg-black text-white font-bold py-3 rounded-xl text-sm shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5">Save
+                                Expense</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Expense List -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <h3 class="font-bold text-lg text-slate-700">Recent Expenses (Last 20)</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-bold tracking-wider">
+                                    <tr>
+                                        <th class="p-4">Date</th>
+                                        <th class="p-4">Category</th>
+                                        <th class="p-4">Case/Ref</th>
+                                        <th class="p-4 text-right">Amount</th>
+                                        <th class="p-4"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expense-list" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STAFF & SALARY -->
+        <div id="staff" class="section-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Staff List & Add -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 mb-6">
+                        <h3 class="font-bold text-lg text-slate-800 mb-4">Add New Staff</h3>
+                        <form id="staff-form" class="flex flex-col gap-3">
+                            <input type="text" id="staff-name" placeholder="Name" required
+                                class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <input type="text" id="staff-desig" placeholder="Designation" required
+                                class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <button type="submit"
+                                class="bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-indigo-700 shadow-md transition">Add
+                                Staff</button>
+                        </form>
+                    </div>
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-4 bg-slate-50 font-bold text-slate-600 text-sm border-b border-slate-100">Staff
+                            Members</div>
+                        <ul id="staff-list" class="divide-y divide-slate-100"></ul>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="lg:col-span-2 space-y-8">
+
+                    <!-- Attendance -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2"><i
+                                    class="fa-regular fa-calendar-check text-indigo-500"></i> Daily Attendance</h3>
+                            <input type="date" id="att-date"
+                                class="border border-slate-300 p-2 rounded-lg text-sm font-semibold text-slate-600 bg-slate-50">
+                        </div>
+                        <div id="att-list" class="space-y-3">
+                            <p class="text-center text-slate-400 text-sm py-4">Select date to mark attendance.</p>
+                        </div>
+                        <button id="save-att-btn"
+                            class="mt-6 w-full bg-teal-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-teal-700 shadow-md transition hidden">Update
+                            Attendance</button>
+                    </div>
+
+                    <!-- Salary/Payment -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="font-bold text-lg text-slate-800 mb-6 flex items-center gap-2"><i
+                                class="fa-solid fa-money-bill-wave text-green-500"></i> Record Payment</h3>
+                        <form id="payment-form" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <select id="pay-staff" required
+                                class="p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-green-500 outline-none">
+                                <option value="">Select Staff</option>
+                            </select>
+                            <select id="pay-type" required
+                                class="p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-green-500 outline-none">
+                                <option value="Salary">Monthly Salary</option>
+                                <option value="Advance">Advance Salary</option>
+                                <option value="Incentive">Incentive</option>
+                                <option value="Bonus">Bonus</option>
+                            </select>
+                            <input type="date" id="pay-date" required
+                                class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            <input type="number" id="pay-amount" placeholder="Amount" required
+                                class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none font-bold">
+                            <input type="text" id="pay-remarks" placeholder="Remarks"
+                                class="sm:col-span-2 p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                            <button type="submit"
+                                class="sm:col-span-2 bg-green-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-green-700 shadow-md transition">Record
+                                Payment</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- LOANS -->
+        <div id="loans" class="section-content">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                <h3 class="font-bold text-lg text-slate-800 mb-6">Add Loan / EMI Detail</h3>
+                <form id="loan-form" class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <input type="text" id="loan-name" placeholder="Bank/Provider Name" required
+                        class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="number" id="loan-total" placeholder="Total Loan Amount"
+                        class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="number" id="loan-emi" placeholder="EMI Amount" required
+                        class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-bold">
+                    <input type="number" id="loan-day" placeholder="Due Day (1-31)" required min="1" max="31"
+                        class="p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="loan-remarks" placeholder="Remarks"
+                        class="sm:col-span-3 p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <button type="submit"
+                        class="bg-slate-800 text-white font-bold py-3 rounded-xl text-sm hover:bg-slate-900 shadow-md transition">Add
+                        Loan</button>
+                </form>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="loan-list"></div>
+        </div>
+
+        <!-- EMI PAYMENT MODAL -->
+        <div id="emi-modal"
+            class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Pay EMI</h3>
+                <p id="emi-modal-subtitle" class="text-sm text-slate-500 mb-4">Bank Name</p>
+                <form id="emi-pay-form">
+                    <input type="hidden" id="emi-loan-id">
+                    <div class="mb-3">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Payment Date</label>
+                        <input type="date" id="emi-pay-date" required class="w-full p-2 border rounded-lg text-sm">
+                    </div>
+                    <div class="mb-4">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Amount</label>
+                        <input type="number" id="emi-pay-amount" required
+                            class="w-full p-2 border rounded-lg text-sm font-bold">
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="close-emi-modal"
+                            class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg font-bold text-xs">Cancel</button>
+                        <button type="submit"
+                            class="bg-teal-600 text-white px-4 py-2 rounded-lg font-bold text-xs">Confirm
+                            Payment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div id="reports" class="section-content">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 no-print">
+                <h3 class="font-bold text-xl text-slate-800 mb-6">Generate Report</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Report Type</label>
+                        <select id="rep-type"
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="expense_cat">Expense by Category</option>
+                            <option value="expense_case">Expense by Case</option>
+                            <option value="income">Income Statement</option>
+                            <option value="staff_att">Staff Attendance</option>
+                            <option value="staff_pay">Staff Payment History</option>
+                            <option value="loan_report">Loan Report</option>
+                        </select>
+                    </div>
+
+                    <!-- Category Filter Input -->
+                    <div id="rep-category-container">
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Category</label>
+                        <input type="text" id="rep-category-input" list="exp-categories" placeholder="All Categories"
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+
+                    <!-- Case Filter Input -->
+                    <div id="rep-case-container" class="hidden">
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Case Number</label>
+                        <input type="text" id="rep-case-input" list="exp-cases-list" placeholder="Select Case No..."
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+
+                    <!-- Staff Filter Input -->
+                    <div id="rep-staff-container" class="hidden">
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Staff Member</label>
+                        <select id="rep-staff-input"
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="">All Staff</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+
+                    <!-- Loan Filter Input -->
+                    <div id="rep-loan-container" class="hidden">
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Loan Provider</label>
+                        <select id="rep-loan-input"
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                            <option value="">All Loans</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">From Date</label>
+                        <input type="date" id="rep-start"
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">To Date</label>
+                        <input type="date" id="rep-end"
+                            class="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div class="lg:col-span-5 flex justify-end">
+                        <button id="gen-rep-btn"
+                            class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-xl text-sm hover:bg-indigo-700 shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5">View
+                            Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Output Area -->
+            <div id="report-output"
+                class="mt-8 bg-white p-10 rounded-2xl shadow-2xl border border-slate-200 min-h-[400px] hidden relative z-50">
+                <button id="rep-close-btn"
+                    class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition no-print bg-slate-50 hover:bg-red-50 rounded-full w-10 h-10 flex items-center justify-center shadow-sm border border-slate-200"
+                    title="Close Report">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+
+                <div class="flex justify-between items-center mb-8 border-b border-slate-100 pb-6">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight" id="rep-title">Report</h2>
+                        <p class="text-sm text-slate-500 mt-1" id="rep-subtitle">Date Range</p>
+                    </div>
+                    <div class="flex gap-3 mr-12">
+                        <button onclick="window.print()"
+                            class="no-print bg-slate-800 text-white px-5 py-2.5 rounded-lg font-bold text-xs hover:bg-black transition shadow-md"><i
+                                class="fa-solid fa-print mr-2"></i> PRINT</button>
+                        <button id="rep-close-btn-bottom"
+                            class="no-print bg-white text-red-600 border border-red-200 px-5 py-2.5 rounded-lg font-bold text-xs hover:bg-red-50 transition shadow-sm">CLOSE</button>
+                    </div>
+                </div>
+                <div id="rep-body"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc, getDocs, where, limit, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(typeof window.__firebase_config !== 'undefined' ? window.__firebase_config : '{"apiKey":"AIzaSyChKU4_9mtTH5PfDuZAlg7FFXtMvVD9-W4","authDomain":"advocate-case-tracker.firebaseapp.com","projectId":"advocate-case-tracker","storageBucket":"advocate-case-tracker.firebasestorage.app","messagingSenderId":"635941080106","appId":"1:635941080106:web:49d5df327250cf7d0e4753"}');
+        const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let userId = null;
+
+        // Date formatter
+        const prettyDate = (dStr) => {
+            if (!dStr) return '-';
+            const d = new Date(dStr);
+            if (isNaN(d.getTime())) return dStr;
+            return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+        };
+
+        function safeRedirect(target) {
+            try {
+                if (window.location.protocol === 'blob:') throw new Error("Blob context");
+                window.location.replace(target);
+            } catch (e) {
+                console.error("Auto-redirect failed:", e);
+                document.body.innerHTML = `<div class="flex items-center justify-center min-h-screen bg-slate-100"><div class="bg-white p-8 rounded-xl shadow-lg text-center max-w-sm"><div class="mb-4 text-orange-500 text-4xl"><i class="fa-solid fa-lock"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">Authentication Required</h3><p class="text-slate-500 mb-6 text-sm">Please sign in to continue accessing the office manager.</p><a href="${target}" class="block w-full bg-teal-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-teal-700 transition">Go to Login</a></div></div>`;
+            }
+        }
+
+        document.querySelectorAll('.nav-tab').forEach(t => {
+            t.addEventListener('click', () => {
+                document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+                document.querySelectorAll('.section-content').forEach(x => x.classList.remove('active'));
+                t.classList.add('active');
+                document.getElementById(t.dataset.target).classList.add('active');
+            });
+        });
+
+        const todayStr = () => new Date().toISOString().split('T')[0];
+        document.getElementById('exp-date').value = todayStr();
+        document.getElementById('att-date').value = todayStr();
+        document.getElementById('pay-date').value = todayStr();
+        document.getElementById('emi-pay-date').value = todayStr();
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                loadStaff();
+                loadCases();
+                loadExpenses();
+                loadLoans();
+                loadDashboard();
+                setupAttendanceListener();
+                loadCategories();
+            } else {
+                safeRedirect('login.html');
+            }
+        });
+
+        // --- CATEGORY LOGIC ---
+        async function loadCategories() {
+            const defaults = ["Stationery", "Photostat", "Stamps", "Court Fees", "Travel", "Refreshment", "Electricity", "Rent", "General"];
+            const custom = [];
+            try {
+                const snap = await getDocs(collection(db, "artifacts", appId, "expense_categories"));
+                snap.forEach(d => custom.push(d.data().name));
+            } catch (e) { console.log("Cat fetch error/empty", e); }
+            const all = [...new Set([...defaults, ...custom])].sort();
+            const dl = document.getElementById('exp-categories');
+            dl.innerHTML = '';
+            all.forEach(c => {
+                const op = document.createElement('option');
+                op.value = c;
+                dl.appendChild(op);
+            });
+        }
+
+        document.getElementById('btn-add-cat').addEventListener('click', async () => {
+            const newCat = prompt("Enter new category name:");
+            if (newCat && newCat.trim()) {
+                const name = newCat.trim();
+                await addDoc(collection(db, "artifacts", appId, "expense_categories"), { name: name });
+                await loadCategories();
+                document.getElementById('exp-category').value = name;
+            }
+        });
+
+        // --- STAFF LOGIC ---
+        let allStaff = [];
+        document.getElementById('staff-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const n = document.getElementById('staff-name').value;
+            const d = document.getElementById('staff-desig').value;
+            await addDoc(collection(db, "artifacts", appId, "staff"), { name: n, designation: d, active: true });
+            e.target.reset();
+        });
+
+        function loadStaff() {
+            onSnapshot(collection(db, "artifacts", appId, "staff"), (snap) => {
+                allStaff = [];
+                const list = document.getElementById('staff-list');
+                const select = document.getElementById('pay-staff');
+                const repSelect = document.getElementById('rep-staff-input');
+
+                list.innerHTML = "";
+                select.innerHTML = '<option value="">Select Staff</option>';
+                repSelect.innerHTML = '<option value="">All Staff</option>';
+
+                snap.forEach(doc => {
+                    const s = { id: doc.id, ...doc.data() };
+                    allStaff.push(s);
+                    const li = document.createElement('li');
+                    li.className = "p-4 flex justify-between items-center text-sm bg-white border border-slate-100 rounded-lg mb-2 shadow-sm";
+                    li.innerHTML = `<div><div class="font-bold text-slate-800">${s.name}</div><div class="text-xs text-slate-500 uppercase tracking-wide">${s.designation}</div></div><button onclick="window.deleteStaff('${s.id}')" class="text-red-400 hover:text-red-600 transition p-2 hover:bg-red-50 rounded"><i class="fa-solid fa-trash"></i></button>`;
+                    list.appendChild(li);
+
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    select.appendChild(opt);
+
+                    const repOpt = document.createElement('option');
+                    repOpt.value = s.id;
+                    repOpt.textContent = s.name;
+                    repSelect.appendChild(repOpt);
+                });
+                renderAttendanceTable();
+            });
+        }
+        window.deleteStaff = async (id) => { if (confirm("Remove Staff?")) await deleteDoc(doc(db, "artifacts", appId, "staff", id)); };
+
+        // --- ATTENDANCE LOGIC ---
+        let dailyAtt = {};
+        function setupAttendanceListener() {
+            document.getElementById('att-date').addEventListener('change', () => fetchAttendanceForDate());
+            fetchAttendanceForDate();
+        }
+        async function fetchAttendanceForDate() {
+            const date = document.getElementById('att-date').value;
+            if (!date) return;
+            onSnapshot(doc(db, "artifacts", appId, "attendance", date), (docSnap) => {
+                if (docSnap.exists()) { dailyAtt = docSnap.data().records || {}; } else { dailyAtt = {}; }
+                renderAttendanceTable();
+            });
+        }
+        function renderAttendanceTable() {
+            const div = document.getElementById('att-list');
+            const btn = document.getElementById('save-att-btn');
+            div.innerHTML = "";
+            if (allStaff.length === 0) {
+                div.innerHTML = "<p class='text-center text-sm text-slate-400'>No staff added yet.</p>";
+                btn.classList.add('hidden');
+                return;
+            }
+            btn.classList.remove('hidden');
+            allStaff.forEach(s => {
+                const status = dailyAtt[s.id] || 'Present';
+                div.innerHTML += `<div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200"><span class="text-sm font-bold text-slate-700 w-1/3">${s.name}</span><div class="flex gap-4"><label class="cursor-pointer flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-green-600"><input type="radio" name="att_${s.id}" value="Present" ${status === 'Present' ? 'checked' : ''} class="accent-green-600 scale-110"> Present</label><label class="cursor-pointer flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-orange-500"><input type="radio" name="att_${s.id}" value="Half Day" ${status === 'Half Day' ? 'checked' : ''} class="accent-orange-500 scale-110"> Half</label><label class="cursor-pointer flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-red-500"><input type="radio" name="att_${s.id}" value="Leave" ${status === 'Leave' ? 'checked' : ''} class="accent-red-500 scale-110"> Leave</label></div></div>`;
+            });
+        }
+        document.getElementById('save-att-btn').addEventListener('click', async () => {
+            const date = document.getElementById('att-date').value;
+            const newRecords = {};
+            allStaff.forEach(s => {
+                const radios = document.getElementsByName(`att_${s.id}`);
+                for (let r of radios) { if (r.checked) newRecords[s.id] = r.value; }
+            });
+            await setDoc(doc(db, "artifacts", appId, "attendance", date), { date: date, records: newRecords });
+            alert("Attendance Saved!");
+        });
+
+        // --- STAFF PAYMENT LOGIC ---
+        document.getElementById('payment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sId = document.getElementById('pay-staff').value;
+            if (!sId) return alert("Select staff");
+            const staffName = allStaff.find(s => s.id === sId)?.name || 'Unknown';
+            await addDoc(collection(db, "artifacts", appId, "staff_payments"), { staffId: sId, staffName: staffName, type: document.getElementById('pay-type').value, date: document.getElementById('pay-date').value, amount: parseFloat(document.getElementById('pay-amount').value), remarks: document.getElementById('pay-remarks').value });
+            alert("Payment Recorded");
+            e.target.reset();
+        });
+
+        // --- EXPENSE LOGIC ---
+        let allCases = [];
+        function loadCases() {
+            const datalist = document.getElementById('exp-cases-list');
+            onSnapshot(query(collection(db, "artifacts", appId, "cases"), orderBy("caseNumber")), (snap) => {
+                datalist.innerHTML = '<option value="General">General</option>'; // ADDED GENERAL
+                allCases = [];
+                snap.forEach(d => {
+                    const c = d.data();
+                    allCases.push({ id: d.id, ...c });
+                    const opt = document.createElement('option');
+                    opt.value = `${c.caseNumber} : ${c.clientName}`;
+                    datalist.appendChild(opt);
+                });
+            });
+        }
+
+        document.getElementById('expense-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!confirm("Are you sure you want to save this expense?")) return;
+
+            const caseVal = document.getElementById('exp-case').value.trim();
+            let cId = null, cNo = "General";
+
+            if (caseVal) {
+                const match = allCases.find(c => `${c.caseNumber} : ${c.clientName}` === caseVal);
+                if (match) {
+                    cId = match.id;
+                    cNo = match.caseNumber;
+                } else {
+                    cNo = caseVal;
+                }
+            }
+
+            await addDoc(collection(db, "artifacts", appId, "office_expenses"), {
+                date: document.getElementById('exp-date').value,
+                amount: parseFloat(document.getElementById('exp-amount').value),
+                category: document.getElementById('exp-category').value,
+                caseId: cId,
+                caseNumber: cNo,
+                remarks: document.getElementById('exp-remarks').value,
+                createdAt: Date.now()
+            });
+            e.target.reset();
+            document.getElementById('exp-date').value = todayStr();
+        });
+
+        function loadExpenses() {
+            const q = query(collection(db, "artifacts", appId, "office_expenses"), orderBy("date", "desc"), limit(20));
+            onSnapshot(q, (snap) => {
+                const tbody = document.getElementById('expense-list');
+                tbody.innerHTML = "";
+                let monthTotal = 0;
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.date.startsWith(currentMonth)) monthTotal += (data.amount || 0);
+                    const row = `<tr><td class="p-4 text-slate-600">${prettyDate(data.date)}</td><td class="p-4 font-bold text-slate-700">${data.category}</td><td class="p-4 text-xs text-slate-500">${data.caseNumber || 'General'}</td><td class="p-4 text-right font-extrabold text-slate-800">₹${data.amount}</td><td class="p-4 text-right"><button onclick="window.delExp('${d.id}')" class="text-red-300 hover:text-red-500 transition p-2 hover:bg-red-50 rounded-full"><i class="fa-solid fa-xmark"></i></button></td></tr>`;
+                    tbody.innerHTML += row;
+                });
+                document.getElementById('dash-expense').textContent = monthTotal.toLocaleString();
+            });
+        }
+        window.delExp = async (id) => { if (confirm("Delete entry?")) await deleteDoc(doc(db, "artifacts", appId, "office_expenses", id)); };
+
+        // --- LOAN LOGIC ---
+        let allLoans = [];
+        document.getElementById('loan-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "artifacts", appId, "loans"), { provider: document.getElementById('loan-name').value, total: parseFloat(document.getElementById('loan-total').value) || 0, emi: parseFloat(document.getElementById('loan-emi').value), day: parseInt(document.getElementById('loan-day').value), remarks: document.getElementById('loan-remarks').value, paymentHistory: [] });
+            e.target.reset();
+        });
+
+        function loadLoans() {
+            onSnapshot(collection(db, "artifacts", appId, "loans"), (snap) => {
+                const div = document.getElementById('loan-list'); div.innerHTML = "";
+                const repLoanSel = document.getElementById('rep-loan-input'); repLoanSel.innerHTML = '<option value="">All Loans</option>';
+                const today = new Date(); const tDay = today.getDate(); const tMonth = today.getMonth(); const tYear = today.getFullYear();
+                allLoans = [];
+
+                snap.forEach(d => {
+                    const l = { id: d.id, ...d.data() }; allLoans.push(l);
+                    // Report Dropdown
+                    const opt = document.createElement('option'); opt.value = l.id; opt.textContent = l.provider; repLoanSel.appendChild(opt);
+
+                    // Calc Balance
+                    const paidTotal = (l.paymentHistory || []).reduce((acc, p) => acc + parseFloat(p.amount || 0), 0);
+                    const balance = (l.total || 0) - paidTotal;
+
+                    // Check Blink Status
+                    let isPaidThisMonth = false;
+                    if (l.paymentHistory) {
+                        isPaidThisMonth = l.paymentHistory.some(p => {
+                            const pDate = new Date(p.date);
+                            return pDate.getMonth() === tMonth && pDate.getFullYear() === tYear;
+                        });
+                    }
+
+                    let cardClass = "bg-white p-6 rounded-2xl border shadow-sm relative hover:shadow-md transition";
+                    let statusMsg = "";
+
+                    if (!isPaidThisMonth) {
+                        // Due logic
+                        const daysLeft = l.day - tDay;
+                        if (tDay > l.day) {
+                            // Overdue (Date passed and not paid)
+                            cardClass += " blink-alert";
+                            statusMsg = `<div class="mt-4 text-xs font-bold text-red-600 bg-red-100 p-2 rounded-lg flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Overdue! Pay Now</div>`;
+                        } else if (daysLeft <= 5 && daysLeft >= 0) {
+                            // Due Soon (Within 5 days)
+                            cardClass += " blink-alert";
+                            statusMsg = `<div class="mt-4 text-xs font-bold text-orange-600 bg-orange-100 p-2 rounded-lg flex items-center justify-center"><i class="fa-solid fa-bell mr-2"></i> Due in ${daysLeft} days</div>`;
+                        } else {
+                            // Normal upcoming
+                            statusMsg = `<div class="mt-4 text-xs font-bold text-slate-500 bg-slate-100 p-2 rounded-lg text-center">Due: ${l.day}/${tMonth + 1}/${tYear}</div>`;
+                        }
+                    } else {
+                        statusMsg = `<div class="mt-4 text-xs font-bold text-green-600 bg-green-100 p-2 rounded-lg text-center"><i class="fa-solid fa-check-circle mr-2"></i> Paid for this month</div>`;
+                        cardClass += " border-slate-200";
+                    }
+
+                    div.innerHTML += `
+                <div class="${cardClass}">
+                    <button onclick="window.delLoan('${l.id}')" class="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition"><i class="fa-solid fa-trash"></i></button>
+                    <h4 class="font-extrabold text-lg text-slate-800 mb-1">${l.provider}</h4>
+                    <p class="text-xs text-slate-400 mb-4 italic">${l.remarks || ''}</p>
+                    
+                    <div class="mt-2 text-sm text-slate-600 space-y-3">
+                        <div class="flex justify-between border-b border-dashed pb-2"><span>EMI:</span> <span class="font-bold text-slate-900">₹${l.emi}</span></div>
+                        <div class="flex justify-between border-b border-dashed pb-2"><span>Due Date:</span> <span class="font-bold text-indigo-600 bg-indigo-50 px-2 rounded">${l.day}</span></div>
+                        <div class="flex justify-between border-b border-dashed pb-2"><span>Total Paid:</span> <span class="font-semibold text-green-600">₹${paidTotal}</span></div>
+                        <div class="flex justify-between pt-1"><span>Balance:</span> <span class="font-bold text-red-600">₹${balance}</span></div>
+                    </div>
+                    ${statusMsg}
+                    <button onclick="window.openPayEmi('${l.id}', ${l.emi}, '${l.provider}')" class="w-full mt-3 bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs transition shadow">PAY EMI</button>
+                </div>`;
+                });
+            });
+        }
+        window.delLoan = async (id) => { if (confirm("Delete Loan?")) await deleteDoc(doc(db, "artifacts", appId, "loans", id)); };
+
+        // EMI Payment Modal Logic
+        const emiModal = document.getElementById('emi-modal');
+        window.openPayEmi = (id, amount, name) => {
+            document.getElementById('emi-loan-id').value = id;
+            document.getElementById('emi-pay-amount').value = amount;
+            document.getElementById('emi-modal-subtitle').textContent = name;
+            document.getElementById('emi-pay-date').value = todayStr();
+            emiModal.classList.remove('hidden');
+        };
+        document.getElementById('close-emi-modal').addEventListener('click', () => emiModal.classList.add('hidden'));
+
+        document.getElementById('emi-pay-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('emi-loan-id').value;
+            const amt = parseFloat(document.getElementById('emi-pay-amount').value);
+            const dt = document.getElementById('emi-pay-date').value;
+
+            await updateDoc(doc(db, "artifacts", appId, "loans", id), {
+                paymentHistory: arrayUnion({ date: dt, amount: amt, recordedAt: Date.now() })
+            });
+
+            emiModal.classList.add('hidden');
+            alert("EMI Payment Recorded!");
+        });
+
+        // --- DASHBOARD INCOME ---
+        function loadDashboard() {
+            onSnapshot(collection(db, "artifacts", appId, "cases"), (snap) => {
+                let inc = 0;
+                let postings = 0;
+                const currentMonth = new Date().toISOString().slice(0, 7);
+
+                snap.forEach(d => {
+                    const c = d.data();
+
+                    // Income Calc
+                    if (c.paymentHistory) {
+                        c.paymentHistory.forEach(p => {
+                            if (p.date && p.date.startsWith(currentMonth)) {
+                                inc += parseFloat(p.amount || 0);
+                            }
+                        });
+                    }
+
+                    // Posting Calc
+                    if (c.scheduledDate && c.scheduledDate.startsWith(currentMonth)) {
+                        postings++;
+                    }
+                    if (c.hearingHistory) {
+                        c.hearingHistory.forEach(h => {
+                            if (h.postingDate && h.postingDate.startsWith(currentMonth)) {
+                                postings++;
+                            }
+                        });
+                    }
+                });
+
+                document.getElementById('dash-income').textContent = inc.toLocaleString();
+
+                const pCountEl = document.getElementById('dash-posting-count');
+                if (pCountEl) pCountEl.textContent = postings;
+            });
+        }
+
+        // --- REPORTS ---
+        document.getElementById('rep-type').addEventListener('change', (e) => {
+            const val = e.target.value;
+            const caseContainer = document.getElementById('rep-case-container');
+            const catContainer = document.getElementById('rep-category-container');
+            const staffContainer = document.getElementById('rep-staff-container');
+            const loanContainer = document.getElementById('rep-loan-container');
+
+            // Hide all first
+            caseContainer.classList.add('hidden');
+            catContainer.classList.add('hidden');
+            staffContainer.classList.add('hidden');
+            loanContainer.classList.add('hidden');
+
+            // Reset values
+            document.getElementById('rep-case-input').value = "";
+            document.getElementById('rep-category-input').value = "";
+            document.getElementById('rep-staff-input').value = "";
+            document.getElementById('rep-loan-input').value = "";
+
+            if (val === 'expense_case' || val === 'income') {
+                caseContainer.classList.remove('hidden');
+            }
+
+            if (val === 'expense_cat' || val === 'expense_case') {
+                catContainer.classList.remove('hidden');
+            }
+
+            if (val === 'staff_att' || val === 'staff_pay') {
+                staffContainer.classList.remove('hidden');
+            }
+
+            if (val === 'loan_report') {
+                loanContainer.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('rep-close-btn').addEventListener('click', () => document.getElementById('report-output').classList.add('hidden'));
+        document.getElementById('rep-close-btn-bottom').addEventListener('click', () => document.getElementById('report-output').classList.add('hidden'));
+
+        document.getElementById('gen-rep-btn').addEventListener('click', async () => {
+            const type = document.getElementById('rep-type').value;
+            const start = document.getElementById('rep-start').value;
+            const end = document.getElementById('rep-end').value;
+            const categoryFilter = document.getElementById('rep-category-input').value.trim();
+            const staffFilter = document.getElementById('rep-staff-input').value;
+
+            let caseFilter = document.getElementById('rep-case-input').value.trim();
+            if (caseFilter.includes(" : ")) {
+                caseFilter = caseFilter.split(" : ")[0].trim();
+            }
+            caseFilter = caseFilter.toLowerCase();
+
+            const body = document.getElementById('rep-body');
+            const output = document.getElementById('report-output');
+
+            output.classList.remove('hidden');
+            document.getElementById('rep-title').textContent = document.getElementById('rep-type').options[document.getElementById('rep-type').selectedIndex].text;
+            document.getElementById('rep-subtitle').textContent = `From ${start ? prettyDate(start) : 'Beginning'} to ${end ? prettyDate(end) : 'Now'}`;
+            body.innerHTML = '<p class="text-center p-4">Loading...</p>';
+
+            let html = '<table class="w-full text-sm text-left border"><thead class="bg-slate-100 text-slate-600 uppercase font-bold"><tr>';
+
+            if (type === 'loan_report') {
+                const loanId = document.getElementById('rep-loan-input').value;
+                html += '<th class="p-3 border">Date</th><th class="p-3 border">Provider</th><th class="p-3 border text-right">Amount</th></tr></thead><tbody>';
+                let total = 0;
+
+                allLoans.forEach(l => {
+                    if (loanId && l.id !== loanId) return;
+                    if (l.paymentHistory) {
+                        l.paymentHistory.forEach(p => {
+                            if (start && p.date < start) return;
+                            if (end && p.date > end) return;
+                            total += parseFloat(p.amount || 0);
+                            html += `<tr><td class="p-3 border">${prettyDate(p.date)}</td><td class="p-3 border font-bold">${l.provider}</td><td class="p-3 border text-right font-bold text-slate-700">₹${p.amount}</td></tr>`;
+                        });
+                    }
+                });
+                html += `</tbody><tfoot><tr><td class="p-3 font-bold bg-slate-50 border-t" colspan="2">TOTAL PAID</td><td class="p-3 font-bold bg-slate-50 border-t text-right text-indigo-700">₹${total}</td></tr></tfoot></table>`;
+
+            } else if (type === 'expense_cat' || type === 'expense_case') {
+                const snap = await getDocs(query(collection(db, "artifacts", appId, "office_expenses"), orderBy("date")));
+                let total = 0;
+                let data = [];
+                snap.forEach(d => {
+                    const i = d.data();
+                    if (start && i.date < start) return;
+                    if (end && i.date > end) return;
+
+                    if (caseFilter && type === 'expense_case') {
+                        if (!i.caseNumber || !i.caseNumber.toLowerCase().includes(caseFilter)) return;
+                    }
+                    if (categoryFilter) {
+                        if (!i.category || !i.category.toLowerCase().includes(categoryFilter.toLowerCase())) return;
+                    }
+                    data.push(i);
+                    total += (i.amount || 0);
+                });
+
+                if (type === 'expense_cat') {
+                    if (categoryFilter) {
+                        // Added Case Number Column
+                        html += '<th class="p-3 border">Date</th><th class="p-3 border">Case No</th><th class="p-3 border">Category</th><th class="p-3 border">Remarks</th><th class="p-3 border text-right">Amount</th></tr></thead><tbody>';
+                        data.forEach(i => {
+                            html += `<tr><td class="p-3 border">${prettyDate(i.date)}</td><td class="p-3 border font-bold">${i.caseNumber || 'General'}</td><td class="p-3 border">${i.category}</td><td class="p-3 border italic text-xs">${i.remarks || '-'}</td><td class="p-3 border text-right font-bold">₹${i.amount}</td></tr>`;
+                        });
+                    } else {
+                        html += '<th class="p-3 border">Category</th><th class="p-3 border text-right">Total Amount</th></tr></thead><tbody>';
+                        const catMap = {};
+                        data.forEach(i => { catMap[i.category] = (catMap[i.category] || 0) + i.amount; });
+                        Object.entries(catMap).forEach(([k, v]) => {
+                            html += `<tr><td class="p-3 border font-medium">${k}</td><td class="p-3 border text-right font-bold text-slate-700">₹${v}</td></tr>`;
+                        });
+                    }
+                } else {
+                    html += '<th class="p-3 border">Case No</th><th class="p-3 border">Date</th><th class="p-3 border">Category</th><th class="p-3 border text-right">Amount</th></tr></thead><tbody>';
+                    data.forEach(i => {
+                        html += `<tr><td class="p-3 border font-bold">${i.caseNumber || 'General'}</td><td class="p-3 border">${prettyDate(i.date)}</td><td class="p-3 border">${i.category}</td><td class="p-3 border text-right font-bold">₹${i.amount}</td></tr>`;
+                    });
+                }
+                html += `</tbody><tfoot><tr><td class="p-3 font-bold bg-slate-50 border-t" colspan="${(type === 'expense_cat' && categoryFilter) ? 4 : 1}">TOTAL</td><td class="p-3 font-bold bg-slate-50 border-t text-right" colspan="${(type === 'expense_case') ? 3 : 1}">₹${total}</td></tr></tfoot></table>`;
+            }
+            else if (type === 'income') {
+                const snap = await getDocs(collection(db, "artifacts", appId, "cases"));
+                let total = 0;
+                html += '<th class="p-3 border">Date</th><th class="p-3 border">Case No</th><th class="p-3 border">Client</th><th class="p-3 border">Remarks</th><th class="p-3 border text-right">Amount</th></tr></thead><tbody>';
+                let flatPayments = [];
+                let filter = document.getElementById('rep-case-input').value.trim();
+                if (filter.includes(" : ")) filter = filter.split(" : ")[0].trim();
+                filter = filter.toLowerCase();
+
+                snap.forEach(d => {
+                    const c = d.data();
+                    if (filter && c.caseNumber && !c.caseNumber.toLowerCase().includes(filter)) return;
+                    if (c.paymentHistory) {
+                        c.paymentHistory.forEach(p => {
+                            if (start && p.date < start) return;
+                            if (end && p.date > end) return;
+                            flatPayments.push({ ...p, caseNo: c.caseNumber, client: c.clientName });
+                            total += parseFloat(p.amount || 0);
+                        });
+                    }
+                });
+                flatPayments.sort((a, b) => a.date.localeCompare(b.date));
+                flatPayments.forEach(p => {
+                    html += `<tr><td class="p-3 border">${prettyDate(p.date)}</td><td class="p-3 border font-bold">${p.caseNo}</td><td class="p-3 border">${p.client}</td><td class="p-3 border text-xs italic">${p.remarks || '-'}</td><td class="p-3 border text-right font-bold text-green-700">₹${p.amount}</td></tr>`;
+                });
+                html += `</tbody><tfoot><tr><td colspan="4" class="p-3 font-bold bg-slate-50 text-right">TOTAL INCOME</td><td class="p-3 font-bold bg-slate-50 text-right text-green-800">₹${total}</td></tr></tfoot></table>`;
+            }
+            else if (type === 'staff_pay') {
+                const snap = await getDocs(query(collection(db, "artifacts", appId, "staff_payments"), orderBy("date")));
+                html += '<th class="p-3 border">Date</th><th class="p-3 border">Staff</th><th class="p-3 border">Type</th><th class="p-3 border">Remarks</th><th class="p-3 border text-right">Amount</th></tr></thead><tbody>';
+                let total = 0;
+                snap.forEach(d => {
+                    const p = d.data();
+                    if (start && p.date < start) return;
+                    if (end && p.date > end) return;
+                    if (staffFilter && p.staffId !== staffFilter) return;
+                    total += (p.amount || 0);
+                    html += `<tr><td class="p-3 border">${prettyDate(p.date)}</td><td class="p-3 border font-bold">${p.staffName}</td><td class="p-3 border"><span class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-bold border border-indigo-100">${p.type}</span></td><td class="p-3 border italic text-xs">${p.remarks || '-'}</td><td class="p-3 border text-right">₹${p.amount}</td></tr>`;
+                });
+                html += `</tbody><tfoot><tr><td colspan="4" class="p-3 font-bold bg-slate-50 text-right">TOTAL</td><td class="p-3 font-bold bg-slate-50 text-right">₹${total}</td></tr></tfoot></table>`;
+            }
+            else if (type === 'staff_att') {
+                const snap = await getDocs(collection(db, "artifacts", appId, "attendance"));
+                let records = [];
+                snap.forEach(d => {
+                    const dt = d.id;
+                    if (start && dt < start) return;
+                    if (end && dt > end) return;
+                    records.push(d.data());
+                });
+                records.sort((a, b) => a.date.localeCompare(b.date));
+
+                html += '<th class="p-3 border">Date</th>';
+                allStaff.forEach(s => {
+                    if (staffFilter && s.id !== staffFilter) return;
+                    html += `<th class="p-3 border">${s.name}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+
+                records.forEach(r => {
+                    html += `<tr><td class="p-3 border font-bold bg-slate-50">${prettyDate(r.date)}</td>`;
+                    allStaff.forEach(s => {
+                        if (staffFilter && s.id !== staffFilter) return;
+                        const st = r.records[s.id] || '-';
+                        let color = 'text-slate-400';
+                        let icon = '';
+                        if (st === 'Present') { color = 'text-green-600 font-bold bg-green-50'; icon = '<i class="fa-solid fa-check mr-1"></i>'; }
+                        if (st === 'Leave') { color = 'text-red-500 font-bold bg-red-50'; icon = '<i class="fa-solid fa-xmark mr-1"></i>'; }
+                        if (st === 'Half Day') { color = 'text-orange-500 font-bold bg-orange-50'; icon = '<i class="fa-regular fa-clock mr-1"></i>'; }
+                        html += `<td class="p-3 border text-center ${color}">${icon}${st}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+            }
+            body.innerHTML = html;
+        });
+
+    </script>
+</body>
+
+</html>

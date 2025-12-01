@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add New Case - Advocate Manager</title>000000
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      background-color: #f1f5f9;
+    }
+
+    .btn-primary {
+      @apply bg-teal-600 hover:bg-teal-700 text-white transition shadow;
+    }
+  </style>
+</head>
+
+<body class="p-4 sm:p-8 min-h-screen flex flex-col text-slate-800">
+  <div class="max-w-4xl mx-auto w-full">
+
+    <header class="text-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-2">
+          <span id="user-role-badge"
+            class="text-xs font-bold uppercase px-2 py-1 rounded bg-slate-200 text-slate-600">Loading...</span>
+        </div>
+        <h1 class="text-2xl font-bold text-slate-900 mx-auto tracking-tight">LegalMate Case Entry</h1>
+        <div class="flex gap-2">
+          <button id="change-pwd-btn"
+            class="hidden text-teal-600 hover:text-teal-800 text-xs font-bold p-2 transition">Change Password</button>
+          <button id="sign-out-btn"
+            class="text-red-500 hover:text-red-700 text-xs font-bold p-2 transition border border-red-100 rounded hover:bg-red-50">Sign
+            Out</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-center gap-3">
+        <a href="schedule.html"
+          class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-teal-700 bg-teal-50 hover:bg-teal-100 transition shadow-sm"><i
+            class="fa-solid fa-calendar-days mr-2"></i> View Case Schedule</a>
+        <a href="office.html"
+          class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition shadow-sm"><i
+            class="fa-solid fa-briefcase mr-2"></i> Office Management</a>
+        <button id="open-advocate-modal-btn"
+          class="inline-flex items-center justify-center px-6 py-3 border border-slate-200 text-sm font-bold rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm"><i
+            class="fa-solid fa-users mr-2"></i> Manage Advocates</button>
+      </div>
+    </header>
+
+    <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-teal-500">
+      <h2 class="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">New Case Details</h2>
+      <form id="case-form" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        <input type="text" id="caseNumber" placeholder="Case Number" required
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+        <div class="flex flex-col"><select id="advocateName" required
+            class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 bg-white outline-none">
+            <option value="" disabled selected>Select My Advocate</option>
+          </select></div>
+        <input type="text" id="courtName" placeholder="Court Name" required
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+
+        <div class="flex flex-col">
+          <label class="text-[10px] text-slate-500 font-bold uppercase ml-1 mb-1">Filing Date (ഫയലിംഗ് തീയതി)</label>
+          <input type="date" id="filingDate" required
+            class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="text-[10px] text-slate-500 font-bold uppercase ml-1 mb-1">Current Status</label>
+          <select id="caseStatus" required
+            class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 bg-white outline-none">
+            <option value="Filed" selected>Filed</option>
+            <option value="Hearing">Hearing</option>
+            <option value="Judgment Reserved">Judgment Reserved</option>
+            <option value="Disposed">Disposed</option>
+            <option value="Adjourned">Adjourned</option>
+            <option value="Achieved">Achieved</option>
+            <option value="Give up">Give up</option>
+          </select>
+        </div>
+
+        <input type="text" id="referralName" placeholder="Referred By"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+
+        <div class="sm:col-span-2 mt-4">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Client Details</h3>
+        </div>
+        <input type="text" id="clientName" placeholder="Client Name" required
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+        <input type="tel" id="contactNumber" placeholder="Primary Mobile Number"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+        <input type="tel" id="alternativeContactNumber" placeholder="Alternative Mobile Number"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+        <input type="email" id="clientEmail" placeholder="Email Address"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+        <textarea id="clientAddress" placeholder="Client Address" rows="2"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 sm:col-span-2 resize-none outline-none transition bg-slate-50 focus:bg-white"></textarea>
+        <input type="text" id="clientPincode" placeholder="Pincode"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+
+        <div class="sm:col-span-2 mt-4">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Opposite Party Details</h3>
+        </div>
+        <input type="text" id="oppositeAdvocate" placeholder="Opposite Advocate Name"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+        <input type="tel" id="oppositeAdvocateMobile" placeholder="Opposite Advocate Mobile"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none transition bg-slate-50 focus:bg-white" />
+
+        <div class="sm:col-span-2 mt-4">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Financials & Notes</h3>
+        </div>
+        <input type="text" id="feePaid" placeholder="Initial Fee Paid (Amount)"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 sm:col-span-2 outline-none transition bg-slate-50 focus:bg-white" />
+        <textarea id="caseNotes" placeholder="Initial Remarks / Notes"
+          class="p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 sm:col-span-2 h-24 resize-none outline-none transition bg-slate-50 focus:bg-white"></textarea>
+
+        <div class="sm:col-span-2 mt-6">
+          <button type="submit"
+            class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition duration-200 text-lg tracking-wide">Save
+            Case Details</button>
+        </div>
+      </form>
+      <p id="auth-status" class="text-xs text-center mt-4 text-slate-400 font-medium">Connecting to database...</p>
+    </div>
+  </div>
+
+  <div id="modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full border border-slate-200">
+      <h3 id="modal-title" class="text-xl font-bold mb-3">Notification</h3>
+      <p id="modal-message" class="text-slate-600 mb-4">Message</p>
+      <div class="flex justify-end"><button id="modal-close"
+          class="bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-lg hover:bg-slate-300">Close</button></div>
+    </div>
+  </div>
+  <div id="pwd-modal"
+    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">
+      <h3 class="text-xl font-bold text-slate-800 mb-4">Change Password</h3>
+      <form id="change-pwd-form"><input type="text" id="newPassword" required class="w-full p-2 border rounded mb-4"
+          placeholder="New Password">
+        <div class="flex justify-end gap-2"><button type="button" id="close-pwd-modal"
+            class="bg-slate-100 text-slate-600 px-4 py-2 rounded">Cancel</button><button type="submit"
+            class="bg-teal-600 text-white px-4 py-2 rounded">Update</button></div>
+      </form>
+    </div>
+  </div>
+  <div id="advocate-modal"
+    class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full flex flex-col max-h-[85vh]">
+      <div class="p-5 border-b flex justify-between items-center bg-slate-50 rounded-t-xl">
+        <h3 class="text-lg font-bold text-slate-800">Manage Advocates</h3><button id="close-advocate-modal"
+          class="text-slate-400 hover:text-red-500 text-xl font-bold">&times;</button>
+      </div>
+      <div class="p-6 overflow-y-auto">
+        <form id="add-advocate-form" class="flex gap-2 mb-6"><input type="text" id="newAdvocateName"
+            placeholder="Enter Name" required class="flex-1 p-2 border rounded-lg" /><button type="submit"
+            class="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-xs">ADD</button></form>
+        <ul id="advocate-list" class="space-y-2 border-t pt-2"></ul>
+      </div>
+      <div class="p-4 border-t bg-slate-50 rounded-b-xl text-right"><button id="close-advocate-btn-bottom"
+          class="px-4 py-2 bg-slate-200 text-slate-700 rounded font-bold text-xs">DONE</button></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = JSON.parse(typeof window.__firebase_config !== 'undefined' ? window.__firebase_config : '{"apiKey":"AIzaSyChKU4_9mtTH5PfDuZAlg7FFXtMvVD9-W4","authDomain":"advocate-case-tracker.firebaseapp.com","projectId":"advocate-case-tracker","storageBucket":"advocate-case-tracker.firebasestorage.app","messagingSenderId":"635941080106","appId":"1:635941080106:web:49d5df327250cf7d0e4753"}');
+    const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
+
+    let db, auth, userId = null;
+    const userRole = localStorage.getItem('userRole');
+
+    function showModal(title, msg, isError = false) { const m = document.getElementById('modal'); const t = document.getElementById('modal-title'); const b = document.getElementById('modal-message'); t.textContent = title; t.className = isError ? "text-xl font-bold mb-3 text-red-600" : "text-xl font-bold mb-3 text-teal-600"; b.textContent = msg; m.classList.remove('hidden'); }
+    document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal').classList.add('hidden'));
+    document.getElementById('sign-out-btn').addEventListener('click', async () => { localStorage.removeItem('userRole'); localStorage.removeItem('userEmail'); try { await signOut(auth); } catch (error) { showModal("Sign Out Error", error.message, true); } });
+    function safeRedirect(targetFile) { const currentPath = window.location.pathname; const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1); window.location.replace(baseDir + targetFile); }
+
+    try {
+      const app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
+      onAuthStateChanged(auth, (user) => {
+        if (user && userRole) { userId = user.uid; const roleLabel = userRole === 'admin' ? 'Administrator' : 'Normal User'; document.getElementById('user-role-badge').textContent = roleLabel; if (userRole === 'admin') { document.getElementById('change-pwd-btn').classList.remove('hidden'); } document.getElementById("auth-status").textContent = `Logged in as ${roleLabel}.`; loadAdvocates(); } else { safeRedirect('login.html'); }
+      });
+    } catch (e) { console.error(e); }
+
+    const pwdModal = document.getElementById('pwd-modal'); document.getElementById('change-pwd-btn').addEventListener('click', () => pwdModal.classList.remove('hidden')); document.getElementById('close-pwd-modal').addEventListener('click', () => pwdModal.classList.add('hidden')); document.getElementById('change-pwd-form').addEventListener('submit', async (e) => { e.preventDefault(); const newPass = document.getElementById('newPassword').value.trim(); if (!newPass) return; try { await setDoc(doc(db, "artifacts", appId, "public", "data", "auth_store", "admin_creds"), { email: 'admin@advocacy.com', password: newPass }); alert("Password Updated!"); pwdModal.classList.add('hidden'); } catch (err) { alert(err.message); } });
+    const advModal = document.getElementById("advocate-modal"); document.getElementById("open-advocate-modal-btn").addEventListener("click", () => advModal.classList.remove("hidden")); document.getElementById("close-advocate-modal").addEventListener("click", () => advModal.classList.add("hidden")); document.getElementById("close-advocate-btn-bottom").addEventListener("click", () => advModal.classList.add("hidden"));
+    function loadAdvocates() { if (!userId) return; const q = query(collection(db, "artifacts", appId, "advocates"), orderBy("name")); onSnapshot(q, (snapshot) => { const select = document.getElementById("advocateName"); const list = document.getElementById("advocate-list"); select.innerHTML = '<option value="" disabled selected>Select My Advocate</option>'; list.innerHTML = ""; snapshot.forEach((docSnap) => { const data = docSnap.data(); const opt = document.createElement("option"); opt.value = data.name; opt.textContent = data.name; select.appendChild(opt); const li = document.createElement("li"); li.className = "flex justify-between p-2 bg-slate-50 rounded"; li.innerHTML = `<span>${data.name}</span>` + (userRole === 'admin' ? `<button onclick="window.deleteAdvocate('${docSnap.id}')" class="text-red-500 text-xs">Delete</button>` : ''); list.appendChild(li); }); }); }
+    window.deleteAdvocate = async (id) => { if (confirm("Delete?")) await deleteDoc(doc(db, "artifacts", appId, "advocates", id)); };
+    document.getElementById("add-advocate-form").addEventListener("submit", async (e) => { e.preventDefault(); const name = document.getElementById("newAdvocateName").value.trim(); if (name) { await addDoc(collection(db, "artifacts", appId, "advocates"), { name: name, createdAt: Date.now() }); document.getElementById("newAdvocateName").value = ""; } });
+
+    document.getElementById("case-form").addEventListener("submit", async (e) => {
+      e.preventDefault(); if (!userId) return showModal("Error", "Not connected.", true);
+      const filingDate = document.getElementById("filingDate").value;
+      const fee = document.getElementById("feePaid").value;
+      const payments = fee ? [{ date: filingDate, amount: fee, remarks: "Initial Fee" }] : [];
+
+      const newCase = {
+        caseNumber: document.getElementById("caseNumber").value,
+        advocateName: document.getElementById("advocateName").value,
+        courtName: document.getElementById("courtName").value,
+        clientName: document.getElementById("clientName").value,
+        scheduledDate: "",
+        filingDate: filingDate,
+        caseStatus: document.getElementById("caseStatus").value,
+        contactNumber: document.getElementById("contactNumber").value || "",
+        referralName: document.getElementById("referralName").value || "",
+        alternativeContactNumber: document.getElementById("alternativeContactNumber").value || "",
+        clientEmail: document.getElementById("clientEmail").value || "",
+        clientAddress: document.getElementById("clientAddress").value || "",
+        clientPincode: document.getElementById("clientPincode").value || "",
+        oppositeAdvocate: document.getElementById("oppositeAdvocate").value || "",
+        oppositeAdvocateMobile: document.getElementById("oppositeAdvocateMobile").value || "",
+        feePaid: fee || "",
+        caseNotes: document.getElementById("caseNotes").value || "",
+        hearingHistory: [],
+        paymentHistory: payments,
+        createdAt: Date.now()
+      };
+
+      try {
+        await addDoc(collection(db, "artifacts", appId, "cases"), newCase);
+        showModal("Success", "Case Filed Successfully! (Not scheduled yet)", false);
+        e.target.reset();
+      } catch (err) {
+        showModal("Error", err.message, true);
+      }
+    });
+  </script>
+</body>
+
+</html>
